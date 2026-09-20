@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Changed
+- Icon tile recolored from near-black to the minimal-family deep purple (`#2d1b4e`), matching Transcript Minimal.
+
 ## [1.2.0] - 2026-09-20
 
 ### Changed
