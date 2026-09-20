@@ -19,7 +19,7 @@ That's the whole UI — everything else lives in the right-click menu.
 - **Copy link as Markdown** — right-click any link, get `[link text](url)`.
 - **Copy image as Markdown** — right-click any image, get `![alt text](src)`.
 - **Copy selection as Markdown** — select anything, get real Markdown: headings, **bold** / *italic*, links, nested lists, fenced code blocks with language detection, blockquotes, tables, images.
-- **Copy page as Markdown** — right-click the page itself, get `[page title](url)`.
+- **Copy page as Markdown** — right-click the page itself, get the whole page as clean Markdown (title as the top heading, nav/header/footer stripped). On pages where the extension can't read content (chrome://, the web store), you get `[page title](url)` instead.
 - **Quiet confirmation** — a tiny violet ✓ flashes on the toolbar icon when the copy lands.
 
 ## Permissions — and why each one is needed

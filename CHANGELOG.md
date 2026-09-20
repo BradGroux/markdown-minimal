@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.2.0] - 2026-09-20
+
+### Changed
+- **Copy page as Markdown** now copies the full page contents as Markdown (headed with the page title, site chrome like nav/header/footer stripped) instead of just the `[title](url)` link. The link remains the fallback on pages where content scripts can't run (chrome://, the web store, …).
+
 ## [1.1.0] - 2026-09-19
 
 ### Added

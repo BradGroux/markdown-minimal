@@ -211,6 +211,22 @@ await page.evaluate(() => {
 r = await viaMessage('mm-copy-selection', {});
 check('message path: selection', r.markdown, 'Select **this** text.');
 
+// --- page path: full contents as Markdown, site chrome stripped ---
+await page.evaluate(() => {
+  document.title = 'Fixture Page';
+  document.getElementById('t').innerHTML =
+    '<nav><a href="/x">skip me</a></nav>' +
+    '<header>skip me too</header>' +
+    '<h1>Real heading</h1><p>Real <strong>body</strong>.</p>' +
+    '<footer>skip footer</footer>';
+});
+r = await viaMessage('mm-copy-page', {});
+check(
+  'message path: page',
+  r.markdown,
+  '# Fixture Page\n\n# Real heading\n\nReal **body**.'
+);
+
 await browser.close();
 if (failures) {
   console.log(failures + ' FAILURES');

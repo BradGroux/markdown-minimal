@@ -86,19 +86,31 @@ check(
   'selection'
 );
 
-// --- page link needs no content script ---
+// --- page contents via content script ---
 clipboard = null;
+sentMessages.length = 0;
+sendMessageImpl = async () => ({ markdown: '# My Page\n\nHello.' });
+await clickHandler({ menuItemId: 'mm-copy-page' }, { id: 7 });
+await flush();
+check('page markdown copied', clipboard, '# My Page\n\nHello.');
+check('badge flashed ok', badges.some((b) => b[0] === 'text' && b[1] === '✓'), true);
+check(
+  'page message sent to tab',
+  sentMessages[0].msg.type + ':' + sentMessages[0].msg.menuItemId,
+  'mm-build:mm-copy-page'
+);
+
+// --- page falls back to the link when the content script is missing ---
+clipboard = null;
+sendMessageImpl = async () => {
+  throw new Error('no content script');
+};
 await clickHandler(
   { menuItemId: 'mm-copy-page' },
   { id: 7, title: 'My Page', url: 'https://example.com/p' }
 );
 await flush();
-check('page link copied', clipboard, '[My Page](https://example.com/p)');
-check(
-  'badge flashed ok',
-  badges.some((b) => b[0] === 'text' && b[1] === '✓'),
-  true
-);
+check('page link fallback copied', clipboard, '[My Page](https://example.com/p)');
 
 // --- selection via content script ---
 clipboard = null;

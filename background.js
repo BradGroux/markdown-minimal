@@ -11,7 +11,7 @@ var MENUS = [
     title: 'Copy selection as Markdown',
     contexts: ['selection'],
   },
-  { id: 'mm-copy-page', title: 'Copy page link as Markdown', contexts: ['page'] },
+  { id: 'mm-copy-page', title: 'Copy page as Markdown', contexts: ['page'] },
 ];
 
 chrome.runtime.onInstalled.addListener(function () {
@@ -30,12 +30,23 @@ function escapeLinkText(s) {
   return cleanTitle(s).replace(/\]/g, '\\]');
 }
 
-// Resolve the markdown for a menu click. Page-context is handled here
-// directly (tab title/url need no page script); everything else goes
-// through the content script, with plain-text fallbacks for pages where
-// content scripts can't run (chrome://, file://, web store, …).
+// Resolve the markdown for a menu click. Page-context goes through the
+// content script so it yields the full page contents as Markdown; when the
+// content script can't run (chrome://, web store, …) it falls back to the
+// plain [title](url) link. Everything else goes through the content script,
+// with plain-text fallbacks for pages where content scripts can't run.
 async function buildMarkdown(info, tab) {
   if (info.menuItemId === 'mm-copy-page') {
+    try {
+      var res = await chrome.tabs.sendMessage(tab.id, {
+        type: 'mm-build',
+        menuItemId: 'mm-copy-page',
+        info: {},
+      });
+      if (res && res.markdown) return res.markdown;
+    } catch (e) {
+      // fall through to the link fallback below
+    }
     var url = (tab && tab.url) || '';
     if (!url) throw new Error('no url');
     var title = cleanTitle(tab && tab.title) || url;

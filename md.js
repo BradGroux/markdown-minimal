@@ -290,10 +290,13 @@
   }
 
   // Build the markdown string for a context-menu action.
-  // menuItemId: mm-copy-link | mm-copy-image | mm-copy-selection
+  // menuItemId: mm-copy-link | mm-copy-image | mm-copy-selection | mm-copy-page
   // last: recorded contextmenu data (may be null); info: fallback from onClicked
   function build(menuItemId, last, info) {
     info = info || {};
+    if (menuItemId === 'mm-copy-page') {
+      return buildPage();
+    }
     if (menuItemId === 'mm-copy-link') {
       var href = (last && last.linkUrl) || info.linkUrl || '';
       if (!href || /^javascript:/i.test(href)) throw new Error('no link');
@@ -314,6 +317,27 @@
       return md;
     }
     throw new Error('unknown menu: ' + menuItemId);
+  }
+
+  // Full page → Markdown. Clones the body, drops site chrome (nav, header,
+  // footer, asides), converts the rest, and heads it with the page title.
+  function buildPage() {
+    if (typeof document === 'undefined' || !document.body) {
+      throw new Error('no page body');
+    }
+    var body = document.body.cloneNode(true);
+    Array.prototype.forEach.call(
+      body.querySelectorAll(
+        'nav,header,footer,aside,[role="navigation"],[role="banner"],[role="contentinfo"]'
+      ),
+      function (n) {
+        n.remove();
+      }
+    );
+    var md = convertHTML(body.innerHTML);
+    if (!md) throw new Error('empty page');
+    var title = cleanText(document.title);
+    return (title ? '# ' + title + '\n\n' : '') + md;
   }
 
   window.MarkdownMinimal = {
