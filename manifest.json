@@ -1,5 +1,7 @@
 {
-  "action": {},
+  "action": {
+    "default_popup": "popup.html"
+  },
   "background": {
     "service_worker": "background.js"
   },
@@ -33,5 +35,5 @@
     "clipboardWrite",
     "activeTab"
   ],
-  "version": "1.0.0"
+  "version": "1.1.0"
 }

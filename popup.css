@@ -1,0 +1,65 @@
+/* markdown-minimal popup — same design language as the minimal family:
+   dark #16161d, violet #6d4fc2 accent, 8px radii, 300px wide. */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  width: 300px;
+  font: 13px/1.45 -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: #16161d;
+  color: #e8e8ee;
+}
+
+#app { padding: 16px; }
+
+h1 {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 6px;
+}
+
+.lede {
+  font-size: 12px;
+  color: #9a9aa8;
+  margin-bottom: 14px;
+}
+
+.howto { list-style: none; margin-bottom: 14px; }
+
+.howto li {
+  font-size: 12px;
+  color: #b9b9c6;
+  background: #22222c;
+  border: 1px solid #34343f;
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin-bottom: 6px;
+}
+
+.howto li:last-child { margin-bottom: 0; }
+
+.howto span { color: #6d4fc2; font-weight: 600; }
+
+.howto code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: #e8e8ee;
+}
+
+.about {
+  border-top: 1px solid #34343f;
+  padding-top: 12px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #8a8a98;
+}
+
+.about p + p { margin-top: 6px; }
+
+.about a {
+  color: #a58cf0;
+  text-decoration: none;
+}
+
+.about a:hover { text-decoration: underline; }

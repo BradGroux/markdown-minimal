@@ -1,1 +1,11 @@
-{"description":"Minimal Chrome extension: copy links, images, selections and pages as clean Markdown.","name":"markdown-minimal","private":true,"scripts":{"icons":"NODE_PATH=$HOME/workspace/solutionmeld-work/node_modules node scripts/make-icons.js","test":"node test/background.test.mjs && NODE_PATH=$HOME/workspace/solutionmeld-work/node_modules node test/run.mjs"},"version":"1.0.0"}
+{
+  "description": "Minimal Chrome extension: copy links, images, selections and pages as clean Markdown.",
+  "name": "markdown-minimal",
+  "private": true,
+  "scripts": {
+    "icons": "NODE_PATH=$HOME/workspace/solutionmeld-work/node_modules node scripts/make-icons.js",
+    "test": "node test/background.test.mjs && node test/popup.test.mjs && NODE_PATH=$HOME/workspace/solutionmeld-work/node_modules node test/run.mjs",
+    "screenshot": "NODE_PATH=$HOME/workspace/solutionmeld-work/node_modules node scripts/screenshot-popup.js"
+  },
+  "version": "1.1.0"
+}
