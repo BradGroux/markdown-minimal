@@ -1,0 +1,3 @@
+# markdown-minimal
+
+Seed commit.
