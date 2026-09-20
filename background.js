@@ -30,42 +30,32 @@ function escapeLinkText(s) {
   return cleanTitle(s).replace(/\]/g, '\\]');
 }
 
-// Resolve the markdown for a menu click. Page-context goes through the
-// content script so it yields the full page contents as Markdown; when the
-// content script can't run (chrome://, web store, …) it falls back to the
-// plain [title](url) link. Everything else goes through the content script,
-// with plain-text fallbacks for pages where content scripts can't run.
-async function buildMarkdown(info, tab) {
+// Ask the content script to build the markdown AND copy it in the page,
+// where clipboard access is reliable. Resolves when the page confirms the
+// copy; rejects when there is no content script or the page copy failed.
+async function tryPageCopy(info, tab) {
+  var res = await chrome.tabs.sendMessage(tab.id, {
+    type: 'mm-build',
+    menuItemId: info.menuItemId,
+    info: {
+      linkUrl: info.linkUrl,
+      srcUrl: info.srcUrl,
+      selectionText: info.selectionText,
+    },
+  });
+  if (res && res.copied) return;
+  throw new Error((res && res.error) || 'page copy failed');
+}
+
+// Plain-text fallbacks for when the content script can't run (chrome://,
+// web store, tabs opened before the extension loaded, …). Copied from the
+// worker; less reliable than the page-context copy, but better than nothing.
+function buildFallbackMarkdown(info, tab) {
   if (info.menuItemId === 'mm-copy-page') {
-    try {
-      var res = await chrome.tabs.sendMessage(tab.id, {
-        type: 'mm-build',
-        menuItemId: 'mm-copy-page',
-        info: {},
-      });
-      if (res && res.markdown) return res.markdown;
-    } catch (e) {
-      // fall through to the link fallback below
-    }
     var url = (tab && tab.url) || '';
     if (!url) throw new Error('no url');
     var title = cleanTitle(tab && tab.title) || url;
     return '[' + escapeLinkText(title) + '](' + url + ')';
-  }
-  try {
-    var res = await chrome.tabs.sendMessage(tab.id, {
-      type: 'mm-build',
-      menuItemId: info.menuItemId,
-      info: {
-        linkUrl: info.linkUrl,
-        srcUrl: info.srcUrl,
-        selectionText: info.selectionText,
-      },
-    });
-    if (res && res.markdown) return res.markdown;
-    throw new Error((res && res.error) || 'no markdown');
-  } catch (e) {
-    // fallbacks when the content script is unavailable
   }
   if (info.menuItemId === 'mm-copy-link' && info.linkUrl) {
     return '[' + escapeLinkText(info.linkUrl) + '](' + info.linkUrl + ')';
@@ -77,6 +67,11 @@ async function buildMarkdown(info, tab) {
     return cleanTitle(info.selectionText);
   }
   throw new Error('nothing to copy');
+}
+
+async function workerFallbackCopy(info, tab) {
+  var md = buildFallbackMarkdown(info, tab);
+  await navigator.clipboard.writeText(md);
 }
 
 function flashBadge(text) {
@@ -92,9 +87,9 @@ function flashBadge(text) {
 }
 
 chrome.contextMenus.onClicked.addListener(function (info, tab) {
-  buildMarkdown(info, tab)
-    .then(function (md) {
-      return navigator.clipboard.writeText(md);
+  tryPageCopy(info, tab)
+    .catch(function () {
+      return workerFallbackCopy(info, tab);
     })
     .then(function () {
       flashBadge('✓');
@@ -105,4 +100,8 @@ chrome.contextMenus.onClicked.addListener(function (info, tab) {
 });
 
 // Test seam (not a public API): lets the headless test drive the click flow.
-globalThis.__mmTest = { buildMarkdown: buildMarkdown, MENUS: MENUS };
+globalThis.__mmTest = {
+  tryPageCopy: tryPageCopy,
+  buildFallbackMarkdown: buildFallbackMarkdown,
+  MENUS: MENUS,
+};

@@ -86,13 +86,16 @@ check(
   'selection'
 );
 
-// --- page contents via content script ---
+// --- page contents copied in the page; worker clipboard untouched ---
 clipboard = null;
 sentMessages.length = 0;
-sendMessageImpl = async () => ({ markdown: '# My Page\n\nHello.' });
+sendMessageImpl = async () => ({
+  markdown: '# My Page\n\nHello.',
+  copied: true,
+});
 await clickHandler({ menuItemId: 'mm-copy-page' }, { id: 7 });
 await flush();
-check('page markdown copied', clipboard, '# My Page\n\nHello.');
+check('page copy confirmed by page', clipboard, null);
 check('badge flashed ok', badges.some((b) => b[0] === 'text' && b[1] === '✓'), true);
 check(
   'page message sent to tab',
@@ -112,16 +115,30 @@ await clickHandler(
 await flush();
 check('page link fallback copied', clipboard, '[My Page](https://example.com/p)');
 
+// --- page falls back to the link when the page copy itself fails ---
+clipboard = null;
+sendMessageImpl = async () => ({ markdown: 'x', copied: false, error: 'denied' });
+await clickHandler(
+  { menuItemId: 'mm-copy-page' },
+  { id: 7, title: 'My Page', url: 'https://example.com/p' }
+);
+await flush();
+check(
+  'page link fallback after page-copy failure',
+  clipboard,
+  '[My Page](https://example.com/p)'
+);
+
 // --- selection via content script ---
 clipboard = null;
 sentMessages.length = 0;
-sendMessageImpl = async () => ({ markdown: '**hi**' });
+sendMessageImpl = async () => ({ markdown: '**hi**', copied: true });
 await clickHandler(
   { menuItemId: 'mm-copy-selection', selectionText: 'hi' },
   { id: 7 }
 );
 await flush();
-check('selection markdown copied', clipboard, '**hi**');
+check('selection copy confirmed by page', clipboard, null);
 check('message sent to tab', sentMessages[0].tabId, 7);
 check(
   'message type',

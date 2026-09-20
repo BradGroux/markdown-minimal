@@ -9,6 +9,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Icon tile recolored from near-black to the minimal-family deep purple (`#2d1b4e`), matching Transcript Minimal.
 
+## [1.2.1] - 2026-09-20
+
+### Fixed
+- Copying now happens in the page (content script) instead of the background service worker, whose clipboard writes silently fail in some Chromium builds — the reported "Copy page as Markdown does nothing" bug. `navigator.clipboard.writeText` is tried first, with a textarea + `execCommand('copy')` fallback. The worker-side copy remains as a last resort for pages where content scripts can't run.
+
 ## [1.2.0] - 2026-09-20
 
 ### Changed

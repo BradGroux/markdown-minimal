@@ -226,6 +226,7 @@ check(
   r.markdown,
   '# Fixture Page\n\n# Real heading\n\nReal **body**.'
 );
+check('message path: page copy confirmed', r.copied, true);
 
 await browser.close();
 if (failures) {
